@@ -14,6 +14,7 @@
   "dependencies": {
     "@prisma/client": "^3.4.1",
     "express": "^4.17.1",
-    "helmet": "^4.6.0"
+    "helmet": "^4.6.0",
+    "prisma": "^3.4.1"
   }
 }
