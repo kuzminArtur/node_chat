@@ -20,6 +20,7 @@ model User {
   name      String   @unique
   role      Role     @default(USER)
   rooms     Room[]
+  password  String
 }
 
 enum Role {
