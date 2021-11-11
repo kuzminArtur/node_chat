@@ -3,8 +3,10 @@ const Prisma = require('@prisma/client');
 
 
 const ERROR_CODE_DESCRIBE = {
-    'P2002': 'Unique constraint failed'
-
+    'P2002': {
+        message: 'Объект с указанным уникальным свойством уже существует',
+        status: 409
+    },
 }
 
 const prismaErrorHandler = (err, req, res, next) => {
@@ -12,8 +14,8 @@ const prismaErrorHandler = (err, req, res, next) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (ERROR_CODE_DESCRIBE.hasOwnProperty(err.code)) {
             res
-                .status(409)
-                .send(ERROR_CODE_DESCRIBE[err.code]);
+                .status(ERROR_CODE_DESCRIBE[err.code].status)
+                .send(ERROR_CODE_DESCRIBE[err.code].message);
         }
     }
     else if (err instanceof Prisma.PrismaClientInitializationError) {

@@ -8,19 +8,34 @@ generator client {
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  name      String   @unique
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      String    @unique
   users     User[]
+  messages  Room[]    @relation("RoomToRoom")
+  Room      Room?     @relation("RoomToRoom", fields: [roomId], references: [id])
+  roomId    Int?
+  Message   Message[]
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  name      String   @unique
-  role      Role     @default(USER)
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      String    @unique
+  role      Role      @default(USER)
   rooms     Room[]
   password  String
+  messages  Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  text      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    Int
 }
 
 enum Role {

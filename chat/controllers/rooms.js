@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-module.exports.getRooms = async (req, res, next) => {
+const getRooms = async (req, res, next) => {
     try {
         const rooms = await prisma.room.findMany({
             select: {
@@ -17,7 +17,7 @@ module.exports.getRooms = async (req, res, next) => {
 
 }
 
-module.exports.createRoom = async (req, res, next) => {
+const createRoom = async (req, res, next) => {
     const { name } = req.body
     try {
         const room = await prisma.room.create({
@@ -35,3 +35,5 @@ module.exports.createRoom = async (req, res, next) => {
         next(err);
     }
 }
+
+module.exports = { getRooms,  createRoom }; 
