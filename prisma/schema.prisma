@@ -12,10 +12,10 @@ model Room {
   createdAt DateTime  @default(now())
   name      String    @unique
   users     User[]
-  messages  Room[]    @relation("RoomToRoom")
-  Room      Room?     @relation("RoomToRoom", fields: [roomId], references: [id])
-  roomId    Int?
-  Message   Message[]
+  messages  Message[]   // @relation("RoomToRoom")
+  //Room      Room?     @relation("RoomToRoom", fields: [roomId], references: [id])
+  //roomId    Int?
+  //Message   Message[]
 }
 
 model User {

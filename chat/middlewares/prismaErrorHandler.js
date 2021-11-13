@@ -26,7 +26,7 @@ const prismaErrorHandler = (err, req, res, next) => {
     else
         res
             .status(500)
-            .send('Ошибка сервера');
+            .send(err.message);
     next();
 }
 

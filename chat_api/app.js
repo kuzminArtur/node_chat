@@ -1,11 +1,13 @@
+const config = require('../configs/appConfig');
 const app = require('express')();
 //const helmet = require("helmet");
 const router = require('./routes');
 const jsonParser = require('express').json();
 const prismaErrorHandler = require('../chat/middlewares/prismaErrorHandler');
-
+const auth = require('../users/middlewares/auth');
 //app.use(helmet());
 app.use(jsonParser);
+app.use(auth);
 app.use(router);
 app.use(prismaErrorHandler);
-app.listen(3000);
+app.listen(config.server.port);
