@@ -2,20 +2,43 @@ const jwt = require('jsonwebtoken');
 const config = require('../../configs/appConfig');
 
 
-const generateToken = async (payload) => {
-    const accesToken = await jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: config.token_expire.access });
-    const refreshToken = await jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: config.token_expire.refresh });
+const generateToken = async (user) => {
+    const payload = {
+        user: user,
+        token_type: 'access'
+    };
+    const accesToken = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: config.token_expire.access });
+    payload.token_type = 'refresh';
+    const refreshToken = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: config.token_expire.refresh });
     return {
         access: accesToken,
         refresh: refreshToken
     }
 }
 
-const verifyToken = async (token) => {
-    const payload = await jwt.verify(token, process.env.SECRET_KEY);
-    if (!payload.hasOwnProperty('name'))
-        return null;
-    return payload.name;
+const verifyToken = async (req, token) => {
+    try {
+        const payload = jwt.verify(token, process.env.SECRET_KEY,);
+        if (payload.token_type != 'access') {
+
+            throw new Error('Invalid tilen');
+        }
+        req.user = payload.user;
+    } catch (err) {
+        throw new Error(err); //TODO: добавить обработчик ошибок
+    }
 }
 
-module.exports = { generateToken, verifyToken };
+const generateByRefresh = async (token) => {
+    try {
+        const payload = jwt.verify(token, process.env.SECRET_KEY);
+        return generateToken(payload.user);
+    } catch (err) {
+        throw new Error(err);
+    }
+
+
+
+}
+
+module.exports = { generateToken, verifyToken, generateByRefresh };

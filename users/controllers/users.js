@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-const { generateToken } = require('../utils/tokenHandler');
+const { generateToken, generateByRefresh } = require('../utils/tokenHandler');
 
 const prisma = new PrismaClient();
 
@@ -33,11 +33,11 @@ const getUser = async (name, password) => {
             }
         });
         if (!user) {
-            throw new Error("Пользователь не существует");
+            throw new Error("Пользователь не существует"); // Обработчик ошибок
         }
         const isLoginSuccess = await bcrypt.compare(password, user.password);
         if (!isLoginSuccess) {
-            throw new Error("Имя пользователя и пароль не совпадают");
+            throw new Error("Имя пользователя и пароль не совпадают"); // Обработчик ошибок
         }
         return user;
     } catch (err) {
@@ -50,12 +50,18 @@ const loginUser = async (req, res, next) => {
     const { name, password } = req.body;
     try {
         const user = await getUser(name, password);
-        const token = await generateToken({name: user.name});
+        const token = await generateToken(user.name);
         res.status(200).send(token);
     } catch (err) {
         next(err);
     }
-
 }
 
-module.exports = { createUser, loginUser };
+
+const refreshToken = async (req, res, next) => {
+    const { refresh } = req.body;
+    const token = await generateByRefresh(refresh);
+    res.status(200).send(token);
+}
+
+module.exports = { createUser, loginUser, refreshToken };
