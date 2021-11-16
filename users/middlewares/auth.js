@@ -1,20 +1,19 @@
 const { verifyToken } = require('../utils/tokenHandler');
 
-
 const auth = async (req, res, next) => {
-    const { authorization } = req.headers;
-    let user;
-    if (!authorization)
+    const url = req.url;
+    const routesWhithoutAuth = ['signup', 'signin', 'refresh-token']; // Эндпоинты для которых не требуется проверки токена
+    const regExp = new RegExp(`^/(${routesWhithoutAuth.join('|')})/?$`);
+    if (regExp.test(url)) {
         return next();
-    const token = authorization.replace('Bearer ', '');
-    try {
-        user = await verifyToken(req, token);
-    } catch (err) {
-        next(err);
     }
-
-    // if (user)
-    //     req.user = user;
+    const { authorization } = req.headers;
+    const token = authorization && authorization.replace('Bearer ', '');
+    try {
+        await verifyToken(req, token);
+    } catch (err) {
+        return next(err);
+    }
     return next();
 }
 
