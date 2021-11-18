@@ -1,18 +1,28 @@
-const { PrismaClient } = require('@prisma/client');
+const {PrismaClient} = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-const { generateToken, generateByRefresh } = require('../utils/tokenHandler');
+const config = require('../../configs/appConfig');
+const {generateToken, generateByRefresh} = require('../utils/tokenHandler');
+const {RegistrationError} = require("../errorTypes/authErrors");
+
 
 const prisma = new PrismaClient();
 
-
 const createUser = async (req, res, next) => {
-    const saltRounds = 10;
-    const { name, password } = req.body;
+    const saltRounds = config.salt_rounds;
+    const {name, password} = req.body;
+    const isUserExist = await prisma.user.count({
+        cursor: {
+            name: name
+        }
+    });
     try {
+        if (isUserExist) {
+            throw new RegistrationError;
+        }
         const hash = await bcrypt.hash(password, saltRounds);
         const user = await prisma.user.create({
             data: {
-                name,
+                name: name,
                 password: hash
             },
             select: {
@@ -20,7 +30,8 @@ const createUser = async (req, res, next) => {
             }
         });
         res.status(201).send(user);
-    } catch (err) {
+    } catch
+        (err) {
         next(err);
     }
 }
@@ -45,9 +56,8 @@ const getUser = async (name, password) => {
     }
 }
 
-
 const loginUser = async (req, res, next) => {
-    const { name, password } = req.body;
+    const {name, password} = req.body;
     try {
         const user = await getUser(name, password);
         const token = await generateToken(user.name);
@@ -57,11 +67,10 @@ const loginUser = async (req, res, next) => {
     }
 }
 
-
 const refreshToken = async (req, res, next) => {
-    const { refresh } = req.body;
+    const {refresh} = req.body;
     const token = await generateByRefresh(refresh);
     res.status(200).send(token);
 }
 
-module.exports = { createUser, loginUser, refreshToken };
+module.exports = {createUser, loginUser, refreshToken};
