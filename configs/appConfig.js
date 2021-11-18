@@ -2,6 +2,7 @@ const DEVELOP_MODE = true;
 
 
 const DEV_CONFIG = {
+    salt_rounds: 10,
     token_expire: {
         access: '20d',
         refresh: '70d'
@@ -14,6 +15,7 @@ const DEV_CONFIG = {
 }
 
 const PROD_CONFIG= {
+    salt_rounds: 10,
     token_expire: {
         access: '1h',
         refresh: '7d'
