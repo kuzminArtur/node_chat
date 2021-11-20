@@ -2,7 +2,7 @@ const {PrismaClient} = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const config = require('../../configs/appConfig');
 const {generateToken, generateByRefresh} = require('../utils/tokenHandler');
-const {RegistrationError} = require("../errorTypes/authErrors");
+const {LoginError, RegistrationError, TokenError} = require("../errorTypes/authErrors");
 
 
 const prisma = new PrismaClient();
@@ -15,10 +15,11 @@ const createUser = async (req, res, next) => {
             name: name
         }
     });
+    if (isUserExist) {
+        next(new RegistrationError);
+        return;
+    }
     try {
-        if (isUserExist) {
-            throw new RegistrationError;
-        }
         const hash = await bcrypt.hash(password, saltRounds);
         const user = await prisma.user.create({
             data: {
@@ -30,30 +31,25 @@ const createUser = async (req, res, next) => {
             }
         });
         res.status(201).send(user);
-    } catch
-        (err) {
+    } catch (err) {
         next(err);
     }
 }
 
 const getUser = async (name, password) => {
-    try {
-        const user = await prisma.user.findUnique({
-            where: {
-                name: name,
-            }
-        });
-        if (!user) {
-            throw new Error("Пользователь не существует"); // Обработчик ошибок
+    const user = await prisma.user.findUnique({
+        where: {
+            name: name,
         }
-        const isLoginSuccess = await bcrypt.compare(password, user.password);
-        if (!isLoginSuccess) {
-            throw new Error("Имя пользователя и пароль не совпадают"); // Обработчик ошибок
-        }
-        return user;
-    } catch (err) {
-        throw new Error(err);
+    });
+    if (!user) {
+        throw new LoginError('User not exist');
     }
+    const isLoginSuccess = await bcrypt.compare(password, user.password);
+    if (!isLoginSuccess) {
+        throw new LoginError;
+    }
+    return user;
 }
 
 const loginUser = async (req, res, next) => {
@@ -69,8 +65,13 @@ const loginUser = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
     const {refresh} = req.body;
-    const token = await generateByRefresh(refresh);
-    res.status(200).send(token);
+    try {
+        const token = await generateByRefresh(refresh);
+        res.status(200).send(token);
+    } catch (err) {
+        next(new TokenError);
+    }
+
 }
 
 module.exports = {createUser, loginUser, refreshToken};
