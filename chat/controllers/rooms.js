@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const {PrismaClient} = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
@@ -7,7 +7,12 @@ const getRooms = async (req, res, next) => {
         const rooms = await prisma.room.findMany({
             select: {
                 name: true,
-                users: true
+                users: {
+                    select: {
+                        name: true
+                    },
+                    take: 10
+                }
             }
         })
         res.status(200).send(rooms);
@@ -18,22 +23,33 @@ const getRooms = async (req, res, next) => {
 }
 
 const createRoom = async (req, res, next) => {
-    const { name } = req.body
+    const {name} = req.body;
+    const user = await prisma.user.findUnique({
+        where: {
+            name: req.user,
+        }
+    });
     try {
         const room = await prisma.room.create({
             data: {
-                name
+                name: name,
+                users: {
+                    connect: {id: user.id}
+                },
             },
             select: {
                 name: true,
-                users: true
+                users: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         });
         res.status(201).send(room);
-    }
-    catch (err) {
+    } catch (err) {
         next(err);
     }
 }
 
-module.exports = { getRooms,  createRoom }; 
+module.exports = {getRooms, createRoom};
