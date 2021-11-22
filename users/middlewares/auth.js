@@ -1,9 +1,6 @@
 const {verifyToken} = require('../utils/tokenHandler');
 
-const auth = async (err, req, res, next) => {
-    if (err) {
-        return next(err);
-    }
+const auth = async (req, res, next) => {
     const url = req.url;
     const routesWithoutAuth = ['signup', 'signin', 'refresh-token']; // Эндпоинты для которых не требуется проверки токена
     const regExp = new RegExp(`^/(${routesWithoutAuth.join('|')})/?$`);
