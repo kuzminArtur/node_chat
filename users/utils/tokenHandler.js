@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../../configs/appConfig');
 const {TokenError} = require('../errorTypes/authErrors');
+const {getUser} = require("./getUser");
 
 const generateToken = async (user) => {
     const payload = {
@@ -21,7 +22,7 @@ const verifyToken = async (req, token) => {
     if (payload.token_type !== 'access') {
         throw new TokenError;
     }
-    req.user = payload.user;
+    req.user = await getUser(payload.user);
 }
 
 const generateByRefresh = async (token) => {

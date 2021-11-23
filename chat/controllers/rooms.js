@@ -1,6 +1,4 @@
-const {PrismaClient} = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const prisma = require('../../prisma/utils/prismaClient');
 
 const getRooms = async (req, res, next) => {
     try {
@@ -24,11 +22,7 @@ const getRooms = async (req, res, next) => {
 
 const createRoom = async (req, res, next) => {
     const {name} = req.body;
-    const user = await prisma.user.findUnique({
-        where: {
-            name: req.user,
-        }
-    });
+    const user = req.user;
     try {
         const room = await prisma.room.create({
             data: {
