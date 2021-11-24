@@ -1,7 +1,7 @@
 const {LoginError} = require("../errorTypes/authErrors");
 const prisma = require('../../prisma/utils/prismaClient');
 
-const getUser = async name => {
+const getUser = async (name) => {
     const user = await prisma.user.findUnique({
         where: {
             name: name,
@@ -13,4 +13,4 @@ const getUser = async name => {
     return user;
 }
 
-module.exports = getUser;
+module.exports = {getUser};

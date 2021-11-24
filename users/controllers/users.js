@@ -5,7 +5,6 @@ const {generateToken, generateByRefresh} = require('../utils/tokenHandler');
 const {getUser} = require('../utils/getUser');
 const {RegistrationError, TokenError, LoginError} = require("../errorTypes/authErrors");
 
-
 const createUser = async (req, res, next) => {
     const saltRounds = config.salt_rounds;
     const {name, password} = req.body;

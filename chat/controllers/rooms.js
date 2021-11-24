@@ -5,11 +5,10 @@ const getRooms = async (req, res, next) => {
         const rooms = await prisma.room.findMany({
             select: {
                 name: true,
-                users: {
+                _count: {
                     select: {
-                        name: true
-                    },
-                    take: 10
+                        users: true
+                    }
                 }
             }
         })
@@ -17,7 +16,27 @@ const getRooms = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
+}
 
+const getRoom = async (req, res, next) => {
+    try {
+        const room = await prisma.room.findUnique({
+            where: {
+                name: req.params.roomName
+            },
+            select: {
+                name: true,
+                users: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        res.status(200).send(room)
+    } catch (err) {
+        next(err);
+    }
 }
 
 const createRoom = async (req, res, next) => {
@@ -28,7 +47,9 @@ const createRoom = async (req, res, next) => {
             data: {
                 name: name,
                 users: {
-                    connect: {id: user.id}
+                    connect: {
+                        id: user.id
+                    }
                 },
             },
             select: {
@@ -46,4 +67,4 @@ const createRoom = async (req, res, next) => {
     }
 }
 
-module.exports = {getRooms, createRoom};
+module.exports = {getRooms, getRoom, createRoom};
