@@ -19,7 +19,7 @@ const generateToken = async (user) => {
 
 const authByToken = async (req) => {
     const {authorization} = req.headers;
-    const token =  authorization && authorization.replace('Bearer ', '');
+    const token = authorization && authorization.replace('Bearer ', '');
     return await verifyToken(token)
 }
 
