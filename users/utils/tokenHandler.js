@@ -17,12 +17,18 @@ const generateToken = async (user) => {
     }
 }
 
-const verifyToken = async (req, token) => {
+const authByToken = async (req) => {
+    const {authorization} = req.headers;
+    const token =  authorization && authorization.replace('Bearer ', '');
+    return await verifyToken(token)
+}
+
+const verifyToken = async (token) => {
     const payload = jwt.verify(token, process.env.SECRET_KEY,);
     if (payload.token_type !== 'access') {
         throw new TokenError;
     }
-    req.user = await getUser(payload.user);
+    return await getUser(payload.user);
 }
 
 const generateByRefresh = async (token) => {
@@ -30,4 +36,4 @@ const generateByRefresh = async (token) => {
     return generateToken(payload.user);
 }
 
-module.exports = {generateToken, verifyToken, generateByRefresh};
+module.exports = {generateToken, verifyToken, generateByRefresh, authByToken};
