@@ -1,40 +1,39 @@
 const ws = require('ws');
-const {verifyToken} = require('../users/utils/tokenHandler')
-
+const {authByToken} = require('../users/utils/tokenHandler')
 
 let wss;
+ws.Server.prototype.shouldHandle = (req) => {
+    const regex = new RegExp('^/(rooms)/[a-zA-Z0-9]+$');
+    return regex.test(req.url);
+};
 
 module.exports = function (server) {
     wss = new ws.WebSocketServer({
-       // server: server,
-        noServer: true,
-        path: '/rooms'
+        noServer: true
     });
-    wss.on('connection', function connection(webSocket, request, client) {
-        console.log(request, client);
-        webSocket.on('message', message => messageBroadcast(message));
-    });
-    server.on('upgrade', async (request, socket, head) => upgrade(request, socket, head));
 
+    wss.on('connection', function connection(webSocket, request, user) {
+        webSocket.user = user;
+        webSocket.on('message', message => messageBroadcast(message));
+        webSocket.send(JSON.stringify({message: `Привет, ${user.name}!`}));
+    });
+
+    server.on('upgrade', async (request, socket, head) => upgrade(request, socket, head));
+    return wss;
 };
 
-function authUser(request, callback) {
-    console.log(request); //TODO: Реализовать проверку токена
-   let client = "userNameMM";
-    callback(null, client);
-}
+async function upgrade(request, socket, head) {
+    let user;
+    try {
+        user = await authByToken(request);
+    } catch (err) {
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return;
+    }
 
-function upgrade(request, socket, head) {
-    authUser(request, function next(err, client) {
-        if (err || !client) {
-            socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-            socket.destroy();
-            return;
-        }
-
-        wss.handleUpgrade(request, socket, head, function done(ws) {
-            wss.emit('connection', ws, request, client);
-        });
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+        wss.emit('connection', ws, request, user);
     });
 }
 
