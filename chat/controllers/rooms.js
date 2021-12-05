@@ -1,4 +1,5 @@
 const prisma = require('../../prisma/utils/prismaClient');
+const {updateExistingRooms} = require("../utils/rooms");
 
 const getRooms = async (req, res, next) => {
     try {
@@ -62,6 +63,7 @@ const createRoom = async (req, res, next) => {
             }
         });
         res.status(201).send(room);
+        updateExistingRooms();
     } catch (err) {
         next(err);
     }
