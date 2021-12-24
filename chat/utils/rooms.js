@@ -2,24 +2,30 @@ const prisma = require('../../prisma/utils/prismaClient');
 
 let existingRooms;
 
-const getAllRooms = async () => {
-    return await prisma.room.findMany({
-        select: {
-            name: true
-        }
-    });
-}
+const getAllRooms = async () => prisma.room.findMany();
 
 const updateExistingRooms = () => {
-    getAllRooms().then((rooms) => {
-        existingRooms = rooms.map(room => room.name);
-    });
-}
+  getAllRooms().then((rooms) => {
+    existingRooms = rooms;
+  });
+};
 
-const getRooms = () => {
-    return existingRooms;
-}
+const getExistingRooms = () => existingRooms;
+
+const getRoomByName = async (name) => prisma.room.findUnique({
+  where: {
+    name,
+  },
+  select: {
+    name: true,
+    users: {
+      select: {
+        name: true,
+      },
+    },
+  },
+});
 
 updateExistingRooms();
 
-module.exports = {getRooms, updateExistingRooms};
+module.exports = { getExistingRooms, updateExistingRooms, getRoomByName };
