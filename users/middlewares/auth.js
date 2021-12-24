@@ -1,4 +1,5 @@
 const {authByToken} = require('../utils/tokenHandler');
+const {TokenError} = require("../errorTypes/authErrors");
 
 const auth = async (req, res, next) => {
     const url = req.url;
@@ -10,7 +11,7 @@ const auth = async (req, res, next) => {
     try {
         req.user = await authByToken(req);
     } catch (err) {
-        return next(err);
+        return next(new TokenError());
     }
     return next();
 }

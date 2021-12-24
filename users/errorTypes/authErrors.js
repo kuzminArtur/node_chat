@@ -2,7 +2,6 @@ class TokenError extends Error {
     constructor(message) {
         super(message);
         this.message = message || 'Token not valid or not provided';
-        this.message = message;
         this.status = 401;
     }
 }
