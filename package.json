@@ -2,9 +2,11 @@
   "name": "chat_api",
   "version": "1.0.0",
   "description": "backend api for simple chat",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start_db": "docker-compose up -d db",
+    "run": "node ./chat_api/app.js",
+    "dev": "nodemon ./chat_api/app.js"
   },
   "author": "Kuzmin Artur <dayteyashik@gmail.com>",
   "license": "ISC",

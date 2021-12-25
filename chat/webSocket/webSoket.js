@@ -1,7 +1,7 @@
 const ws = require('ws');
-const { messageEventHandler } = require('./messages');
+const { messageEventHandler, notifyJoin } = require('./messages');
 const { auth } = require('./auth');
-const { getExistingRooms } = require('../utils/rooms');
+const { getExistingRooms, getRoomFromReq } = require('../utils/rooms');
 
 ws.Server.prototype.shouldHandle = (req) => {
   const roomsNames = getExistingRooms().map((room) => room.name);
@@ -9,20 +9,16 @@ ws.Server.prototype.shouldHandle = (req) => {
   return regex.exec(req.url);
 };
 
-function getRoomName(req) {
-  return req.url.split('/').at(-1);
-}
-
 const startWebSocketServer = (server) => {
   const wss = new ws.WebSocketServer({
     noServer: true,
   });
 
   wss.on('connection', (webSocket, request, user) => {
-    user.room = getExistingRooms().find((room) => room.name === getRoomName(request));
+    user.room = getRoomFromReq(request);
     webSocket.room = user.room;
+    notifyJoin(wss, user);
     webSocket.on('message', (message) => messageEventHandler(message, wss, user));
-    // messageBroadcast(JSON.stringify({message: `${user.name} присоединился к чату!`}), wss, user);
   });
 
   server.on('upgrade', async (request, socket, head) => auth(wss, request, socket, head));

@@ -1,13 +1,24 @@
 const ws = require('ws');
 const { saveMessage } = require('../controllers/messages');
 
-function sendUserMessage(message, wss, user) {
-  const messageObj = { message, user: user.name };
+function sendMessageToRoomUsers(messageObj, wss, room){
   wss.clients.forEach((client) => {
-    if (client.room === user.room && client.readyState === ws.OPEN) {
+    if (client.room === room && client.readyState === ws.OPEN) {
       client.send(JSON.stringify(messageObj));
     }
   });
+}
+
+function sendUserMessage(message, wss, user) {
+  const messageObj = { message, user: user.name };
+  sendMessageToRoomUsers(messageObj, wss, user.room);
+}
+
+function notifyJoin(wss, user){
+  const messageObj = {
+    notification: `${ user.name } вошел в комнату`
+  };
+  sendMessageToRoomUsers(messageObj, wss, user.room);
 }
 
 function messageEventHandler(data, wss, user) {
@@ -19,4 +30,4 @@ function messageEventHandler(data, wss, user) {
   }
 }
 
-module.exports = { messageEventHandler };
+module.exports = { messageEventHandler, notifyJoin };
