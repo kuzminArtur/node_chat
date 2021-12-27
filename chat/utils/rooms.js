@@ -29,8 +29,10 @@ const getRoomByName = async (name) => prisma.room.findUnique({
 const getRoomFromReq = (req) => {
   const roomName = req.url.split('/').at(-1);
   return existingRooms.find((room) => room.name === roomName);
-}
+};
 
 updateExistingRooms();
 
-module.exports = { getExistingRooms, updateExistingRooms, getRoomByName, getRoomFromReq };
+module.exports = {
+  getExistingRooms, updateExistingRooms, getRoomByName, getRoomFromReq,
+};
