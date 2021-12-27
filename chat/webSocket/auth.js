@@ -1,4 +1,4 @@
-const { authByToken } = require('../../users/utils/tokenHandler');
+const { authByToken } = require('../../users');
 
 const auth = async (wss, request, socket, head) => {
   let user;

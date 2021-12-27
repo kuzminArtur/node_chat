@@ -1,4 +1,4 @@
-const prisma = require('../../prisma/utils/prismaClient');
+const { prisma } = require('../../prisma');
 
 let existingRooms;
 

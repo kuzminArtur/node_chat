@@ -1,4 +1,4 @@
-const prisma = require('../../prisma/utils/prismaClient');
+const { prisma } = require('../../prisma');
 const { updateExistingRooms, getRoomByName } = require('../utils/rooms');
 
 const getRooms = async (req, res, next) => {

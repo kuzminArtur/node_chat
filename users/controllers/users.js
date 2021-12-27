@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
-const prisma = require('../../prisma/utils/prismaClient');
-const config = require('../../configs/appConfig');
+const { prisma } = require('../../prisma');
+const config = require('../../configs');
 const { generateToken, generateByRefresh } = require('../utils/tokenHandler');
 const { getUser } = require('../utils/getUser');
 const { RegistrationError, TokenError, LoginError } = require('../errorTypes/authErrors');

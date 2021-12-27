@@ -1,4 +1,4 @@
-const prisma = require('../../prisma/utils/prismaClient');
+const { prisma } = require('../../prisma');
 
 const saveMessage = async (text, user, room) => {
   await prisma.message.create({

@@ -1,5 +1,5 @@
 const { LoginError } = require('../errorTypes/authErrors');
-const prisma = require('../../prisma/utils/prismaClient');
+const { prisma } = require('../../prisma');
 
 const getUser = async (name) => {
   const user = await prisma.user.findUnique({
